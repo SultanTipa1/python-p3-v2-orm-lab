@@ -62,7 +62,7 @@ class Employee:
         """ Create a new table to persist the attributes of Employee instances """
         sql = """
             CREATE TABLE IF NOT EXISTS employees (
-            id INTEGER PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             job_title TEXT,
             department_id INTEGER,
@@ -187,4 +187,11 @@ class Employee:
 
     def reviews(self):
         """Return list of reviews associated with current employee"""
-        pass
+        from review import Review # Import Review inside the method to avoid circular import issues
+        sql = """
+            SELECT * FROM reviews WHERE employee_id = ?
+        """
+        CURSOR.execute(sql, (self.id,))
+        rows = CURSOR.fetchall()
+        
+        return [Review.instance_from_db(row) for row in rows]
